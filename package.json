@@ -1,0 +1,20 @@
+{
+  "name": "polling_backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "author": "vadim",
+  "license": "ISC",
+  "devDependencies": {
+    "@faker-js/faker": "^8.3.1",
+    "koa": "^2.14.2",
+    "koa-body": "^6.0.1",
+    "koa-combine-routers": "^4.0.2",
+    "koa-router": "^12.0.1",
+    "koa-static": "^5.0.0",
+    "uuid": "^9.0.1"
+  }
+}
