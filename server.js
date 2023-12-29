@@ -5,7 +5,7 @@ import bodyParser from "body-parser";
 import { faker } from "@faker-js/faker";
 
 function getMessage() {
-  const userName = faker.string.uuid();
+  const userName = faker.internet.userName();
   return {
     id: faker.string.uuid(),
     from: userName,
