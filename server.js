@@ -1,56 +1,63 @@
-const http = require('http');
-const Koa = require('koa');
-const { koaBody } = require('koa-body');
-const getUnreadMesages = require('./getUnreadMesages');
-const Router = require('koa-router');
+import http from "http";
+import express from "express";
+import cors from "cors";
+import bodyParser from "body-parser";
+import { faker } from "@faker-js/faker";
 
-const app = new Koa;
+function getMessage() {
+  const userName = faker.string.uuid();
+  return {
+    id: faker.string.uuid(),
+    from: userName,
+    subject: "Hello from " + userName,
+    body: "Long message body here",
+    received: Date.now(),
+  };
+}
 
-const router = new Router();
+let messages = [getMessage()];
 
-app.use(koaBody({
-  urlencoded: true,
-}));
+setInterval(() => {
+  messages.push(getMessage());
+}, 10000);
 
-app.use((ctx, next) => {
-  const origin = ctx.request.get('Origin');
-  if (!origin) {
-    return next();
-  }
+const app = express();
 
-  const headers = { 'Access-Control-Allow-Origin': '*' };
-
-  if (ctx.request.method !== 'OPTIONS') {
-    console.log('not OPTIONS');
-    ctx.response.set({ ...headers });
-    try {
-      return next();
-    } catch (e) {
-      e.headers = { ...e.headers, ...headers };
-      throw e;
-    }
-  }
-  
-  if (ctx.request.get('Access-Control-Request-Headers')) {
-    ctx.response.set('Access-Control-Allow-Headers', ctx.request.get('Access-Control-Request-Headers'));
-  }
-  ctx.response = 204;
+app.use(cors());
+app.use(
+  bodyParser.json({
+    type(req) {
+      return true;
+    },
+  })
+);
+app.use((req, res, next) => {
+  res.setHeader("Content-Type", "application/json");
+  next();
 });
 
-router.get('/messages/unread', async (ctx, next) => {
-  ctx.response.body = getUnreadMesages();
+app.get("/messages/unread", async (request, response) => {
+  const res = {
+    status: "ok",
+    timestamp: Date.now(),
+    messages: messages,
+  };
+  response.status(200).send(JSON.stringify(res)).end();
+  messages = [];
 });
 
-app.use(router.routes()).use(router.allowedMethods());
+const server = http.createServer(app);
 
-const port = 7070;
+const port = process.env.PORT || 7070;
 
-const server = http.createServer(app.callback());
-
-server.listen(port, (err) => {
-  if (err) {
-    console.log(err);
-    return;
+const bootstrap = async () => {
+  try {
+    server.listen(port, () =>
+      console.log(`Server has been started on http://localhost:${port}`)
+    );
+  } catch (error) {
+    console.error(error);
   }
-  console.log('Server is listening to ' + port);
-});
+};
+
+bootstrap();
