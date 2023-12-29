@@ -18,6 +18,9 @@ function getMessage() {
 let messages = [getMessage()];
 
 setInterval(() => {
+  if (messages.length > 10) {
+    messages = [];
+  }
   messages.push(getMessage());
 }, 10000);
 
